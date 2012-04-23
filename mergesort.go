@@ -1,12 +1,16 @@
 package main
 
+import (
+	"sort"
+)
+
 func mergesort(list []int) {
 	if len(list) == 1 {
 		return
 	}
-	for size := 1; size < len(list); size = 2 * size {
-		for i := 0; i < len(list)-size; i += 2 * size {
-			limit := i + (2 * size)
+	for size := 1; size < len(list); size += size {
+		for i := 0; i < len(list)-size; i += (size+size) {
+			limit := i + size + size
 			if limit > len(list) {
 				limit = len(list)
 			}
@@ -45,33 +49,34 @@ func merge(list []int, size int) {
 	copy(list, tmp)
 }
 
-func smergesort(list []int) {
-	if len(list) == 1 {
+func smergesort(lst []int) {
+	list:=sort.IntSlice(lst)
+	if list.Len() == 1 {
 		return
 	}
-	for size := 1; size < len(list); size += size {
-		for i := 0; i < len(list)-size; i += (size + size) {
-			limit := i + (2 * size)
-			if limit > len(list) {
-				limit = len(list)
+	for size := 1; size < list.Len(); size += size {
+		for i := 0; i < list.Len()-size; i += (size + size) {
+			limit := i + size + size
+			if limit > list.Len() {
+				limit = list.Len()
 			}
-			swapOnlyMerge(list[i:limit], size)
+			swapOnlyMerge(list, i, limit, size)
 		}
 	}
 }
 
-func swapOnlyMerge(list []int, size int) {
-	o := 0
-	a := size
-	for ; o < size; o++ {
+func swapOnlyMerge(list sort.Interface, start, end, size int) {
+	o := start
+	a := start+size
+	for ; o < (start+size); o++ {
 		if o == a {
 			a++
 		}
-		if list[a] < list[o] {
-			list[a], list[o] = list[o], list[a]
+		if list.Less(a, o) {
+			list.Swap(a, o)
 		}
-		for b := a; b < len(list)-1 && list[b+1] < list[b]; b++ {
-			list[b], list[b+1] = list[b+1], list[b]
+		for b := a; b < end-1 && list.Less(b+1,b); b++ {
+			list.Swap(b, b+1)
 		}
 	}
 }
