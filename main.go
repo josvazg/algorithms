@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"time"
 )
@@ -24,24 +25,26 @@ var sorts = []struct {
 	{"mergesort", mergesort},
 	{"swap mergesort", smergesortInts},
 	{"quicksort", quicksortInts},
+	{"heapsort", heapsortInts},
 	{"sort.Ints", sort.Ints},
 }
 
 func main() {
 	for _, u := range tests {
 		list := make([]int, len(u))
-		fmt.Println("Unsorted:", u)
+		//fmt.Println("Unsorted:", u)
 		for _, asort := range sorts {
 			copy(list, u)
 			asort.fn(list)
-			fmt.Println(asort.name, " sorted list:", list)
+			//fmt.Println(asort.name, " sorted list:", list)
 			if !sort.IntsAreSorted(list) {
 				fmt.Println("FAILED!")
-				break
+				os.Exit(-1)
 			}
 		}
 	}
-	times := 100000
+	fmt.Println("PASSED")
+	times := 50000
 	for _, asort := range sorts {
 		t := time.Now()
 		for i := 0; i < times; i++ {
