@@ -11,6 +11,10 @@ var tests = [][]int{
 	{9, 6, 5, 3, 1, 8, 7, 2, 4, 0},
 	{9, 8, 7, 6, 5, 4, 3, 2, 1},
 	{9, 9, 9, 2, 3, 4, 2, 4, 5, 7, 6, 8, 3, 5},
+	{1, 2, 3},
+	{30, 20, 1},
+	{25, 0, 50},
+	{70, 0, 50},
 }
 
 var sorts = []struct {
@@ -18,7 +22,8 @@ var sorts = []struct {
 	fn   func([]int)
 }{
 	{"mergesort", mergesort},
-	{"swap mergesort", smergesort},
+	{"swap mergesort", smergesortInts},
+	{"quicksort", quicksortInts},
 	{"sort.Ints", sort.Ints},
 }
 
@@ -36,7 +41,7 @@ func main() {
 			}
 		}
 	}
-	times := 500000
+	times := 100000
 	for _, asort := range sorts {
 		t := time.Now()
 		for i := 0; i < times; i++ {
