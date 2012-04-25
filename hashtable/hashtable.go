@@ -5,13 +5,16 @@ const (
 	P = 5          // Initial default Hashtable size 2^5=32
 )
 
-type HashBucket struct {
-	k string
-	v interface{}
+type bucket struct {
+	k    string
+	v    interface{}
+	next *bucket
 }
 
 type Hashtable struct {
-	buckets []HashBucket
+	buckets []*bucket
+	items   int
+	p       uint32
 }
 
 func hash(k, p uint32) uint32 {
@@ -40,5 +43,40 @@ func hashcode(s string) uint32 {
 		h = h ^ ki
 	}
 	return h
+}
+
+func NewHashTable() *Hashtable {
+	return &Hashtable{make([]*bucket, 32), 0, P}
+}
+
+func (h *Hashtable) get(k string) interface{} {
+	return find(k, h.buckets[hash(hashcode(k), h.p)])
+}
+
+func (h *Hashtable) put(k string, v interface{}) {
+	index := hash(hashcode(k), h.p)
+	b := h.buckets[hash(hashcode(k), h.p)]
+	if b != nil {
+		prev := find(k, b)
+		if prev != nil {
+			return // already there
+		}
+	}
+	h.buckets[index] = &bucket{k, v, b} // new one goes first
+	h.items++
+	if float64(h.items/len(h.buckets)) > 0.8 {
+		resize(h)
+	}
+}
+
+func find(k string, b *bucket) *bucket {
+	for b != nil && b.k != k {
+		b = b.next
+	}
+	return b
+}
+
+func resize(h *Hashtable) {
+
 }
 
