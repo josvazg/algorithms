@@ -11,4 +11,3 @@ func main() {
 		fmt.Println("hash(hashcode('"+s+"'),P)=", hash(hashcode(s), P))
 	}
 }
-
