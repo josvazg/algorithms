@@ -53,3 +53,46 @@ func pivot(list sort.Interface, start, end int) int {
 	return p
 }
 
+func nquicksortInts(list []int) {
+	if len(list) <= 1 {
+		return
+	}
+	p := npivot(list)
+	done := npartition(list, p)
+	nquicksortInts(list[0:done])
+	nquicksortInts(list[done+1:])
+}
+
+func npartition(list []int, p int) int {
+	end := len(list) - 1
+	if p != end { // pivot out of the way (to the end)
+		list[end], list[p] = list[p], list[end]
+	}
+	done := 0
+	for i := 0; i < end; i++ {
+		if list[i] < list[end] {
+			list[i], list[done] = list[done], list[i]
+			done++
+		}
+	}
+	list[end], list[done] = list[done], list[end]
+	return done
+}
+
+func npivot(list []int) int {
+	end := len(list) - 1
+	min := 0
+	p := end
+	if list[p] < list[0] {
+		p, min = 0, p
+	}
+	middle := (end / 2)
+	if list[middle] < list[p] {
+		p = middle
+	}
+	if list[p] < list[min] {
+		return min
+	}
+	return p
+}
+

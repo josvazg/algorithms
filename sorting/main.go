@@ -23,10 +23,13 @@ var sorts = []struct {
 	fn   func([]int)
 }{
 	{"mergesort", mergesort},
-	{"swap mergesort", smergesortInts},
+	{"swap mergesort", imergesortInts},
 	{"quicksort", quicksortInts},
 	{"heapsort", heapsortInts},
 	{"sort.Ints", sort.Ints},
+	{"native in-place mergesort", nimergesortInts},
+	{"native quicksort", nquicksortInts},
+	{"native heapsort", nheapsortInts},
 }
 
 func main() {
@@ -38,13 +41,13 @@ func main() {
 			asort.fn(list)
 			//fmt.Println(asort.name, " sorted list:", list)
 			if !sort.IntsAreSorted(list) {
-				fmt.Println("FAILED!")
+				fmt.Println("FAILED! list=", list)
 				os.Exit(-1)
 			}
 		}
 	}
 	fmt.Println("PASSED")
-	times := 50000
+	times := 100000
 	for _, asort := range sorts {
 		t := time.Now()
 		for i := 0; i < times; i++ {
@@ -54,7 +57,7 @@ func main() {
 				asort.fn(list)
 			}
 		}
-		fmt.Println(asort.name, " sorted", times, "times in", time.Since(t))
+		fmt.Println(asort.name, "sorted", times, "times in", time.Since(t))
 	}
 }
 
