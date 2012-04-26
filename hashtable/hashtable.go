@@ -1,5 +1,9 @@
 package main
 
+import (
+	"math"
+)
+
 const (
 	s            = 2654435769 // A*2^32 A=(sqrt5-1)/2 = 0.6180339887 
 	P            = 5          // Initial default Hashtable size 2^5=32
@@ -27,10 +31,6 @@ func hash(k, p uint32) uint32 {
 	return x >> (32 - p)
 }
 
-func rehash(i, m uint32) uint32 {
-	return (i + 1) % m
-}
-
 func hashcode(s string) uint32 {
 	k := []byte(s)
 	h := uint32(0)
@@ -55,31 +55,33 @@ func hashcode(s string) uint32 {
 }
 
 func NewHashTable() *Hashtable {
-	return &Hashtable{make([]*bucket, 32), nil, 0, 0, int(32 / MAXTHRESHOLD), P}
+	return &Hashtable{make([]*bucket, 32), nil, 0, 0, int(math.Floor(32 * MAXTHRESHOLD)), P}
 }
 
 // Get the value associated with name k
 func (h *Hashtable) Get(k string) interface{} {
 	index := hash(hashcode(k), h.p)
-	for i := 0; (h.buckets[index] == nil || !h.buckets[index].k == k) && i < MAX_PROBING; i++ {
-		index = rehash(index, len(h.buckets))
+	if h.buckets[index] == nil || h.buckets[index].k != k {
+		index = find(h.buckets, k, index)
+		if h.buckets[index] == nil || h.buckets[index].k != k {
+			return nil
+		}
 	}
-	if h.buckets[index] == nil {
-		return nil
-	}
-	return h.v
+	return h.buckets[index].v
 }
 
 // Put associates name k with value v
 func (h *Hashtable) Put(k string, v interface{}) {
 	index := hash(hashcode(k), h.p)
-	for i := 0; h.buckets[index] != nil && i < MAX_PROBING; i++ {
-		index = rehash(index, len(h.buckets))
-	}
 	if h.buckets[index] != nil {
-		resize(h, len(h.buckets))
-		Put(k, v)
-		return
+		for i := 0; h.buckets[index] != nil && h.buckets[index].k != k && i < MAX_PROBING; i++ {
+			index = (index + 1) % uint32(len(h.buckets))
+		}
+		if h.buckets[index] != nil {
+			resize(h, true)
+			h.Put(k, v)
+			return
+		}
 	}
 	h.buckets[index] = &bucket{k, v}
 	h.items++
@@ -91,8 +93,8 @@ func (h *Hashtable) Put(k string, v interface{}) {
 // Remove the association for name k 
 func (h *Hashtable) Remove(k string) {
 	index := hash(hashcode(k), h.p)
-	for i := 0; (h.buckets[index] == nil || !h.buckets[index].k == k) && i < MAX_PROBING; i++ {
-		index = rehash(index, len(h.buckets))
+	for i := 0; h.buckets[index] != nil && h.buckets[index].k != k && i < MAX_PROBING; i++ {
+		index = (index + 1) % uint32(len(h.buckets))
 	}
 	if h.buckets[index] == nil {
 		return
@@ -105,8 +107,15 @@ func (h *Hashtable) Remove(k string) {
 }
 
 // Len returns the number of associations stored
-func (h *Hashtable) Len() {
+func (h *Hashtable) Len() int {
 	return h.items
+}
+
+func find(buckets []*bucket, k string, index uint32) uint32 {
+	for i := 0; (buckets[index] == nil || buckets[index].k != k) && i < MAX_PROBING; i++ {
+		index = (index + 1) % uint32(len(buckets))
+	}
+	return index
 }
 
 func resize(h *Hashtable, grow bool) {
@@ -119,7 +128,7 @@ func resize(h *Hashtable, grow bool) {
 		newsize = newsize >> 1
 		newp--
 	}
-	h.old=h.buckets
-	h.buckets=make([]*bucket, newsize)
-	h.p=newp
+	h.old = h.buckets
+	h.buckets = make([]*bucket, newsize)
+	h.p = newp
 }
