@@ -83,4 +83,3 @@ func swapMerge(list sort.Interface, start, end, size int) {
 		}
 	}
 }
-

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -27,6 +28,26 @@ var sorts = []struct {
 	{"quicksort", quicksortInts},
 	{"heapsort", heapsortInts},
 	{"sort.Ints", sort.Ints},
+	{"sortInts",SortInts},
+}
+
+var sortstr = []struct {
+	name string
+	fn   func([]string)
+}{
+	{"sort.Strings",sort.Strings},
+	{"sortStrings",SortStrings},
+}
+
+func convert(in [][]int) [][]string {
+	out:=make([][]string,len(in))
+	for i,test:=range in {
+		out[i]=make([]string,len(test))
+		for j,item :=range test {
+			out[i][j]=strconv.Itoa(item)
+		}
+	}
+	return out
 }
 
 func main() {
@@ -56,5 +77,31 @@ func main() {
 		}
 		fmt.Println(asort.name, " sorted", times, "times in", time.Since(t))
 	}
+	fmt.Println("Strings tests")
+	teststr:=convert(tests)
+	for _, u := range teststr {
+		list := make([]string, len(u))
+		//fmt.Println("Unsorted:", u)
+		for _, asort := range sortstr {
+			copy(list, u)
+			asort.fn(list)
+			//fmt.Println(asort.name, " sorted list:", list)
+			if !sort.StringsAreSorted(list) {
+				fmt.Println("FAILED!")
+				os.Exit(-1)
+			}
+		}
+	}
+	fmt.Println("PASSED")
+	for _, asort := range sortstr {
+		t := time.Now()
+		for i := 0; i < times; i++ {
+			for _, u := range teststr {
+				list := make([]string, len(u))
+				copy(list, u)
+				asort.fn(list)
+			}
+		}
+		fmt.Println(asort.name, " sorted", times, "times in", time.Since(t))
+	}
 }
-

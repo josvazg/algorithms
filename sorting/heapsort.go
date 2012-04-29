@@ -39,4 +39,3 @@ func heapify(list sort.Interface, count int) {
 		}
 	}
 }
-
