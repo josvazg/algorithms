@@ -49,11 +49,11 @@ func merge(list []int, size int) {
 	copy(list, tmp)
 }
 
-func smergesortInts(list []int) {
-	smergesort(sort.IntSlice(list))
+func imergesortInts(list []int) {
+	imergesort(sort.IntSlice(list))
 }
 
-func smergesort(list sort.Interface) {
+func imergesort(list sort.Interface) {
 	if list.Len() == 1 {
 		return
 	}
@@ -63,12 +63,12 @@ func smergesort(list sort.Interface) {
 			if limit > list.Len() {
 				limit = list.Len()
 			}
-			swapMerge(list, i, limit, size)
+			imerge(list, i, limit, size)
 		}
 	}
 }
 
-func swapMerge(list sort.Interface, start, end, size int) {
+func imerge(list sort.Interface, start, end, size int) {
 	o := start
 	a := start + size
 	for ; o < (start + size); o++ {
@@ -80,6 +80,39 @@ func swapMerge(list sort.Interface, start, end, size int) {
 		}
 		for b := a; b < end-1 && list.Less(b+1, b); b++ {
 			list.Swap(b, b+1)
+		}
+	}
+}
+
+func nimergesortInts(list []int) {
+	len := len(list)
+	if len == 1 {
+		return
+	}
+	for size := 1; size < len; size += size {
+		for i := 0; i < len-size; i += (size + size) {
+			limit := i + size + size
+			if limit > len {
+				limit = len
+			}
+			nimerge(list[i:limit], size)
+		}
+	}
+}
+
+func nimerge(list []int, size int) {
+	o := 0
+	a := size
+	end := len(list) - 1
+	for ; o < size; o++ {
+		if o == a {
+			a++
+		}
+		if list[a] < list[o] {
+			list[a], list[o] = list[o], list[a]
+		}
+		for b := a; b < end && list[b+1] < list[b]; b++ {
+			list[b], list[b+1] = list[b+1], list[b]
 		}
 	}
 }

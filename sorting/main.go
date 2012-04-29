@@ -24,10 +24,13 @@ var sorts = []struct {
 	fn   func([]int)
 }{
 	{"mergesort", mergesort},
-	{"swap mergesort", smergesortInts},
+	{"swap mergesort", imergesortInts},
 	{"quicksort", quicksortInts},
 	{"heapsort", heapsortInts},
 	{"sort.Ints", sort.Ints},
+	{"native in-place mergesort", nimergesortInts},
+	{"native quicksort", nquicksortInts},
+	{"native heapsort", nheapsortInts},
 	{"sortInts",SortInts},
 }
 
@@ -59,7 +62,7 @@ func main() {
 			asort.fn(list)
 			//fmt.Println(asort.name, " sorted list:", list)
 			if !sort.IntsAreSorted(list) {
-				fmt.Println("FAILED!")
+				fmt.Println("FAILED! list=", list)
 				os.Exit(-1)
 			}
 		}
@@ -75,7 +78,7 @@ func main() {
 				asort.fn(list)
 			}
 		}
-		fmt.Println(asort.name, " sorted", times, "times in", time.Since(t))
+		fmt.Println(asort.name, "sorted", times, "times in", time.Since(t))
 	}
 	fmt.Println("Strings tests")
 	teststr:=convert(tests)
